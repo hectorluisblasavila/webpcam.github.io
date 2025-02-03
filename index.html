@@ -6,7 +6,7 @@
     <title>Captura de Cámara</title>
     <style>
         /* Estilos generales */
-        body { text-align: center; font-family: Arial, sans-serif; }
+        body { text-align: center; font-family: Arial, sans-serif; background-color: #000;}
         .container { position: relative; display: inline-block; }
         video, canvas { display: block; margin: 10px auto; max-width: 100%; }
         
@@ -31,19 +31,23 @@
         button {
             margin: 5px;
             padding: 10px;
-            font-size: 16px;
+            font-size: 10px;
             background: rgba(0, 0, 0, 0.5);
             color: white;
             border: none;
             cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
         }
         
         /* Miniatura de la foto tomada */
         #preview {
             display: block;
+            border-radius: 50%;
             margin: 10px auto;
-            width: 500px;
-            height: 500px;
+            width: 100px;
+            height: 100px;
             object-fit: cover;
             border: 2px solid #000;
         }
@@ -62,7 +66,8 @@
                 <option value="png">PNG</option>
                 <option value="webp">WebP</option>
             </select>
-            <button onclick="tomarFoto()">Tomar Foto</button>
+            <button onclick="tomarFoto()">Foto</button>
+            <button onclick="toggleCamera()">Cámara</button>
         </div>
     </div>
     
@@ -73,25 +78,41 @@
     <canvas id="canvas" width="500" height="500" style="display:none;"></canvas>
     
     <script>
-        // Obtiene las referencias a los elementos de la página
+        let useFrontCamera = true;
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const preview = document.getElementById('preview');
         const formatSelector = document.getElementById('formatSelector');
 
-        // Accede a la cámara del usuario con la cámara frontal (facingMode: 'user')
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
-            .then(stream => video.srcObject = stream)
-            .catch(err => console.error('Error accediendo a la cámara:', err));
+        function startCamera() {
+            const constraints = {
+                video: {
+                    facingMode: useFrontCamera ? 'user' : 'environment'
+                }
+            };
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(stream => {
+                    video.srcObject = stream;
+                })
+                .catch(err => console.error('Error accediendo a la cámara:', err));
+        }
+        
+        startCamera();
+
+        function toggleCamera() {
+            useFrontCamera = !useFrontCamera;
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            startCamera();
+        }
 
         function tomarFoto() {
-            // Obtiene la relación de aspecto del video
             const videoAspectRatio = video.videoWidth / video.videoHeight;
             const canvasSize = 500;
             let sx, sy, sWidth, sHeight;
 
-            // Ajusta los valores para recortar la imagen manteniendo la proporción 1:1
             if (videoAspectRatio > 1) {
                 sHeight = video.videoHeight;
                 sWidth = video.videoHeight * 1;
@@ -104,20 +125,12 @@
                 sy = (video.videoHeight - sHeight) / 2;
             }
 
-            // Guarda el estado del canvas antes de modificarlo
             ctx.save();
-            
-            // Refleja la imagen horizontalmente (efecto espejo)
             ctx.translate(canvasSize, 0);
             ctx.scale(-1, 1);
-            
-            // Dibuja la imagen del video en el canvas, recortando para mantener 1:1
             ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvasSize, canvasSize);
-            
-            // Restaura el estado original del canvas
             ctx.restore();
 
-            // Guarda y muestra la imagen en el formato seleccionado
             const formato = formatSelector.value;
             const dataURL = canvas.toDataURL(`image/${formato}`, 0.9);
             preview.src = dataURL;
@@ -126,7 +139,6 @@
         }
 
         function descargarFoto(dataURL, formato) {
-            // Crea un enlace para descargar la imagen capturada en el formato deseado
             const enlace = document.createElement('a');
             enlace.href = dataURL;
             enlace.download = `foto.${formato}`;

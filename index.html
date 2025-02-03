@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captura de Cámara</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        video, canvas { display: block; margin: 10px auto; }
+        button { margin: 5px; padding: 10px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>Captura de Cámara</h1>
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <button onclick="tomarFoto()">Tomar Foto</button>
+    <button onclick="descargarFoto('jpg')">Descargar JPG</button>
+    <button onclick="descargarFoto('png')">Descargar PNG</button>
+    <button onclick="descargarFoto('webp')">Descargar WebP</button>
+    
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => video.srcObject = stream)
+            .catch(err => console.error('Error accediendo a la cámara:', err));
+
+        function tomarFoto() {
+            ctx.drawImage(video, 0, 0, 500, 500);
+        }
+
+        function descargarFoto(formato) {
+            const enlace = document.createElement('a');
+            enlace.href = canvas.toDataURL(`image/${formato}`, 0.9);
+            enlace.download = `foto.${formato}`;
+            enlace.click();
+        }
+    </script>
+</body>
+</html>

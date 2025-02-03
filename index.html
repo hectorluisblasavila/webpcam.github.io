@@ -6,75 +6,93 @@
     <title>Captura de Cámara</title>
     <style>
         /* Estilos generales */
-        body { text-align: center; font-family: Arial, sans-serif; background-color: #000;}
-        .container { position: relative; display: inline-block; }
-        video, canvas { display: block; margin: 10px auto; max-width: 100%; }
+        body { 
+            text-align: center; 
+            font-family: Arial, sans-serif; 
+            background-color: black;
+            color: white;
+            position: relative;
+        }
+        .container { 
+            position: relative; 
+            display: inline-block;
+        }
+        video, canvas { 
+            display: block; 
+            margin: 10px auto; 
+            max-width: 100%;
+        }
         
-        /* Establece el tamaño del video a 500x500 píxeles y lo refleja horizontalmente */
+        /* Establece el tamaño del video a 500x500 píxeles */
         video {
-            transform: scaleX(-1); /* Efecto espejo */
             width: 500px;
             height: 500px;
-            object-fit: cover; /* Ajusta el contenido para llenar el área manteniendo la proporción */
+            object-fit: cover;
             position: relative;
             z-index: 1;
         }
         
-        /* Estilos de los botones para que floten sobre el video */
-        .buttons {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
+        /* Aplica efecto espejo solo a la cámara frontal */
+        .mirrored {
+            transform: scaleX(-1);
         }
-        button {
-            margin: 5px;
-            padding: 10px;
-            font-size: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            cursor: pointer;
+        
+        /* Estilos de los botones */
+        button, select {
             width: 50px;
             height: 50px;
             border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            background: black;
+            color: rgb(255, 255, 255);
+            font-size: 12px;
+            position: absolute;
+            z-index: 2;
+        }
+        
+        #captureButton {
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        #toggleCameraButton {
+            top: 10px;
+            right: 10px;
+        }
+        
+        #formatSelector {
+            bottom: 10px;
+            right: 10px;
         }
         
         /* Miniatura de la foto tomada */
         #preview {
             display: block;
-            border-radius: 50%;
             margin: 10px auto;
             width: 100px;
             height: 100px;
             object-fit: cover;
-            border: 2px solid #000;
+            border-radius: 50%;
+            border: 2px solid white;
         }
     </style>
 </head>
 <body>
-    <h1>Captura de Cámara</h1>
+    <h1>Camara optimizada</h1>
     <div class="container">
-        <!-- Elemento de video donde se mostrará la transmisión de la cámara -->
         <video id="video" autoplay playsinline></video>
-        
-        <!-- Botones flotantes sobre el video -->
-        <div class="buttons">
-            <select id="formatSelector">
-                <option value="jpg">JPG</option>
-                <option value="png">PNG</option>
-                <option value="webp">WebP</option>
-            </select>
-            <button onclick="tomarFoto()">Foto</button>
-            <button onclick="toggleCamera()">Cámara</button>
-        </div>
     </div>
+    <button id="toggleCameraButton" onclick="toggleCamera()">🔄</button>
+    <button id="captureButton" onclick="tomarFoto()">📷</button>
+    <select id="formatSelector">
+        <option value="jpg">JPG</option>
+        <option value="png">PNG</option>
+        <option value="webp">WebP</option>
+    </select>
     
-    <!-- Miniatura de la foto tomada -->
     <img id="preview" style="display:none;">
-    
-    <!-- Canvas oculto para procesar la imagen -->
     <canvas id="canvas" width="500" height="500" style="display:none;"></canvas>
     
     <script>
@@ -87,13 +105,12 @@
 
         function startCamera() {
             const constraints = {
-                video: {
-                    facingMode: useFrontCamera ? 'user' : 'environment'
-                }
+                video: { facingMode: useFrontCamera ? 'user' : 'environment' }
             };
             navigator.mediaDevices.getUserMedia(constraints)
                 .then(stream => {
                     video.srcObject = stream;
+                    video.classList.toggle('mirrored', useFrontCamera);
                 })
                 .catch(err => console.error('Error accediendo a la cámara:', err));
         }
@@ -109,26 +126,13 @@
         }
 
         function tomarFoto() {
-            const videoAspectRatio = video.videoWidth / video.videoHeight;
             const canvasSize = 500;
-            let sx, sy, sWidth, sHeight;
-
-            if (videoAspectRatio > 1) {
-                sHeight = video.videoHeight;
-                sWidth = video.videoHeight * 1;
-                sx = (video.videoWidth - sWidth) / 2;
-                sy = 0;
-            } else {
-                sWidth = video.videoWidth;
-                sHeight = video.videoWidth * 1;
-                sx = 0;
-                sy = (video.videoHeight - sHeight) / 2;
-            }
-
             ctx.save();
-            ctx.translate(canvasSize, 0);
-            ctx.scale(-1, 1);
-            ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvasSize, canvasSize);
+            if (useFrontCamera) {
+                ctx.translate(canvasSize, 0);
+                ctx.scale(-1, 1);
+            }
+            ctx.drawImage(video, 0, 0, canvasSize, canvasSize);
             ctx.restore();
 
             const formato = formatSelector.value;

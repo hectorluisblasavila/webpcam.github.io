@@ -1,0 +1,84 @@
+  /* Estilos generales */
+  body { 
+    text-align: center; 
+    font-family: Arial, sans-serif; 
+    background-color: black;
+    color: white;
+    position: relative;
+}
+.container { 
+    position: relative; 
+    display: inline-block;
+}
+video, canvas { 
+    display: block; 
+    margin: 10px auto; 
+    max-width: 100%;
+}
+
+/* Establece el tamaño del video a 500x500 píxeles */
+video {
+    width: 500px;
+    height: 500px;
+    object-fit: cover;
+    position: relative;
+    z-index: 1;
+    margin-top: 0px;
+    margin-bottom: 0px;
+
+}
+
+/* Aplica efecto espejo solo a la cámara frontal */
+.mirrored {
+    transform: scaleX(-1);
+}
+
+/* Estilos de los botones */
+button, select {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.5);
+    color: rgb(255, 255, 255);
+    font-size: 12px;
+    position: absolute;
+    z-index: 2;
+}
+
+#captureButton {
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#toggleCameraButton {
+    top: 10px;
+    right: 10px;
+}
+
+#formatSelector {
+    bottom: 10px;
+    right: 10px;
+}
+
+/* Miniatura de la foto tomada */
+#preview {
+    display: block;
+    margin: 10px auto;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.fa-camera-rotate{
+    color: aqua;
+    font-size: 20px;
+}
+
+.fa-camera{
+    font-size: 20px;
+}

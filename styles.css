@@ -76,10 +76,14 @@ video {
 }
 
 #captureButton {
+    width: 50PX;
+    height: 50PX;
+    border-radius: 50%;
     bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
     color: aqua;
+    font-size: 25PX;
 }
 
 .btn-guias {

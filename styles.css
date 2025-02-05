@@ -79,7 +79,7 @@ video {
 }
 
 #captureButton {
-    width: 12vw;  /* 12% del ancho de la pantalla */
+  width: 12vw;  /* 12% del ancho de la pantalla */
     height: 12vw; /* Mantener proporción cuadrada */
     max-width: 50px;  /* No más de 50px de ancho */
     max-height: 50px; /* No más de 50px de altura */
@@ -88,7 +88,7 @@ video {
     left: 50%;
     transform: translateX(-50%);
     color: aqua;
-    font-size: 5vw; /* Font size ajustado al tamaño de la pantalla */
+    font-size: 25px; /* Font size ajustado al tamaño de la pantalla */
 }
 
 .btn-guias {

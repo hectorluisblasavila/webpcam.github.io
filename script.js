@@ -52,7 +52,7 @@ function tomarFoto() {
     
     if (useFrontCamera) {
         ctx.translate(canvasSize, 0);
-        ctx.scale(-1, 1);
+        ctx.scale(1, -1);
     }
     ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvasSize, canvasSize);
     ctx.restore();

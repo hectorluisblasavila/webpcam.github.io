@@ -1,3 +1,7 @@
+
+
+
+
 let useFrontCamera = true;
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
@@ -53,16 +57,50 @@ function tomarFoto() {
     ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvasSize, canvasSize);
     ctx.restore();
 
-    const formato = formatSelector.value;
-    const dataURL = canvas.toDataURL(`image/${formato}`, 0.9);
-    preview.src = dataURL;
-    preview.style.display = 'block';
-    descargarFoto(dataURL, formato);
-}
+    
+
+   
+
+  // Agregar la marca de agua (logo)
+  const logo = new Image();
+  logo.src = "image/logo.png"; // Reemplaza con la ruta de tu logo
+
+  logo.onload = function () {
+      const logoSize = 100; // Tamaño del logo
+      const aspectRatio = logo.width / logo.height; // Relación de aspecto del logo
+        const logoHeight = logoSize / aspectRatio; // Altura proporcional
+      const logoX = 10; // Posición X (esquina inferior derecha)
+      const logoY = canvas.height - logoHeight - 10; // Posición Y
+
+      ctx.globalAlpha = 0.5; // Ajustar opacidad de la marca de agua (50%)
+      ctx.drawImage(logo, logoX, logoY, logoSize, logoHeight); // Dibujar el logo en el canvas
+      ctx.globalAlpha = 1.0; // Restaurar opacidad normal
+
+      const formato = formatSelector.value;
+      const dataURL = canvas.toDataURL(`image/${formato}`, 0.9);
+      preview.src = dataURL;
+      preview.style.display = 'block';
+      descargarFoto(dataURL, formato);
+
+}}
 
 function descargarFoto(dataURL, formato) {
     const enlace = document.createElement('a');
     enlace.href = dataURL;
     enlace.download = `foto.${formato}`;
     enlace.click();
+}
+
+
+function toggleGuias() {
+    let guias = document.querySelector(".guias");
+    let boton = document.querySelector(".btn-guias");
+    
+    if (guias.style.display === "none" || guias.style.display === "") {
+        guias.style.display = "block";
+        boton.style.background = "rgba(0, 255, 0, 0.8)"; // Verde con 50% de opacidad
+    } else {
+        guias.style.display = "none";
+        boton.style.background = "rgba(255, 0, 0, 0.8)"; // Rojo con 50% de opacidad
+    }
 }

@@ -1,84 +1,113 @@
-  /* Estilos generales */
-  body { 
-    text-align: center; 
-    font-family: Arial, sans-serif; 
-    background-color: black;
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: #222;
     color: white;
-    position: relative;
-}
-.container { 
-    position: relative; 
-    display: inline-block;
-}
-video, canvas { 
-    display: block; 
-    margin: 10px auto; 
-    max-width: 100%;
+    margin: 0;
 }
 
-/* Establece el tamaño del video a 500x500 píxeles */
-video {
+.container {
+    position: relative;
     width: 500px;
     height: 500px;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 2px solid white;
+}
+
+video {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    position: relative;
-    z-index: 1;
-    margin-top: 0px;
-    margin-bottom: 0px;
-
-}
-
-/* Aplica efecto espejo solo a la cámara frontal */
-.mirrored {
-    transform: scaleX(-1);
-}
-
-/* Estilos de los botones */
-button, select {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    background: rgba(0, 0, 0, 0.5);
-    color: rgb(255, 255, 255);
-    font-size: 12px;
     position: absolute;
+    z-index: 0;
+}
+
+.guias {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
     z-index: 2;
+}
+
+.linea {
+    position: absolute;
+    background: white;
+    opacity: 0.5;
+}
+
+.linea.vertical-1 { width: 1px; height: 100%; left: 33%; top: 0; }
+.linea.vertical-2 { width: 1px; height: 100%; left: 66%; top: 0; }
+.linea.horizontal-1 { height: 1px; width: 100%; top: 33%; left: 0; }
+.linea.horizontal-2 { height: 1px; width: 100%; top: 66%; left: 0; }
+
+.circulo {
+    position: absolute;
+    width: 85%;
+    height: 85%;
+    border: 1px solid white;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.5;
+}
+
+.btn-guias, #toggleCameraButton, #captureButton {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    z-index: 3;
+}
+
+#toggleCameraButton {
+    top: 10px;
+    left: 10px;
+    color: aqua;
 }
 
 #captureButton {
     bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
+    color: aqua;
 }
 
-#toggleCameraButton {
+.btn-guias {
     top: 10px;
     right: 10px;
 }
 
 #formatSelector {
+    position: absolute;
     bottom: 10px;
     right: 10px;
+    z-index: 3;
 }
 
-/* Miniatura de la foto tomada */
 #preview {
-    display: block;
-    margin: 10px auto;
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 50%;
+    margin-top: 10px;
+    width: 300px;
+    height: auto;
+    display: none;
     border: 2px solid white;
 }
 
-.fa-camera-rotate{
-    color: aqua;
-    font-size: 20px;
-}
-
-.fa-camera{
-    font-size: 20px;
-}
+      /* Marca de agua (Logo) */
+      .marca-agua {
+        position: absolute;
+        bottom: 10px;
+       left: 10px;
+        width: 100px; /* Ajusta el tamaño del logo */
+        opacity: 0.3; /* Opacidad baja para dar efecto de marca de agua */
+        z-index: 4;
+    }

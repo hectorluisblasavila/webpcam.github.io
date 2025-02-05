@@ -93,8 +93,13 @@ function tomarFoto() {
 
 function descargarFoto(dataURL, formato) {
     const enlace = document.createElement('a');
+
+    const fecha = new Date();
+    const nombreArchivo = `foto_${fecha.getFullYear()}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}-${fecha.getDate().toString().padStart(2, '0')}_` +
+                          `${fecha.getHours().toString().padStart(2, '0')}-${fecha.getMinutes().toString().padStart(2, '0')}-${fecha.getSeconds().toString().padStart(2, '0')}` +
+                          `.${formato}`;
     enlace.href = dataURL;
-    enlace.download = `foto.${formato}`;
+    enlace.download = nombreArchivo;  // Usar el nombre único
     enlace.click();
 }
 

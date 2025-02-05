@@ -84,7 +84,7 @@ function tomarFoto() {
       ctx.globalAlpha = 1.0; // Restaurar opacidad normal
 
       const formato = formatSelector.value;
-      const dataURL = canvas.toDataURL(`image/${formato}`, 0.9);
+      const dataURL = canvas.toDataURL(`image/${formato}`, 1);
       preview.src = dataURL;
       preview.style.display = 'block';
       descargarFoto(dataURL, formato);

@@ -10,16 +10,18 @@ body {
     padding: 0;
 }
 
+
+
 .container {
     position: relative;
     width: 90vw;  /* 90% del ancho de la pantalla */
-    height: 90vw; /* 90% del ancho de la pantalla para mantener la relación de aspecto */
-    max-width: 500px;  /* Establece un máximo para que no se expanda más allá de 500px */
-    max-height: 500px; /* Mantiene un tamaño máximo */
+    max-width: 500px;  /* Máximo 500px de ancho */
+    aspect-ratio: 9 / 16; /* Mantiene la relación 16:9 */
     border-radius: 5px;
     overflow: hidden;
-    border: 2px solid white;
+    border: 1px solid white;
 }
+
 
 video {
     width: 100%;
@@ -62,8 +64,8 @@ video {
 
 .btn-guias, #toggleCameraButton, #captureButton {
     position: absolute;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
+    background: rgb(255, 255, 255);
+    color: rgb(41, 125, 125);
     border: none;
     padding: 10px;
     cursor: pointer;
@@ -75,7 +77,8 @@ video {
 #toggleCameraButton {
     top: 10px;
     left: 10px;
-    color: aqua;
+    color: rgb(11, 210, 210);
+
 }
 
 #captureButton {
@@ -87,7 +90,7 @@ video {
     bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
-    color: aqua;
+    color: rgb(11, 210, 210);
     font-size: 25px; /* Font size ajustado al tamaño de la pantalla */
 }
 
@@ -104,8 +107,12 @@ video {
 }
 
 #preview {
-    margin-top: 10px;
-    width: 100px;  /* Ajustado al 80% del ancho de la pantalla */
+    position: absolute;
+  ;
+    bottom: 10px;
+    right: 80px;
+  
+    width: 70px;  /* Ajustado al 80% del ancho de la pantalla */
     height: auto;
     display: none;
     border: 2px solid white;
@@ -114,10 +121,22 @@ video {
 /* Marca de agua (Logo) */
 .marca-agua {
     position: absolute;
-    bottom: 10px;
-    left: 10px;
-    width: 20%;  /* Ajustado al 20% del ancho de la pantalla */
-    max-width: 100px; /* Tamaño máximo de 100px */
-    opacity: 0.3; /* Opacidad baja para dar efecto de marca de agua */
+    bottom: 20px;
+    left: 20px;
+    width: 30%;  /* Ajustado al 20% del ancho de la pantalla */
+    max-width: 200px; /* Tamaño máximo de 100px */
+    opacity: 0.8; /* Opacidad baja para dar efecto de marca de agua */
     z-index: 4;
+}
+
+
+
+#video.mirror {
+    transform: scaleX(-1); /* Invierte horizontalmente */
+}
+
+
+
+.mirror {
+    transform: scaleX(-1); /* Invierte horizontalmente */
 }

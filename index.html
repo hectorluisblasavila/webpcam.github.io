@@ -6,12 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Captura de Cámara</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="/manifest.json">
     <script src="script.js" defer></script>
 </head>
 <body>
-    <h1>CAMARA IMPORT SAID</h1>
+    <!--<h1>CAMARA FANTASIA ANIMADA</h1>-->
+
+   
     <div class="container">
         <video id="video" autoplay playsinline ></video>
+        <img id="logo" src="" style="display: none;">
         <button id="toggleCameraButton" onclick="toggleCamera()"><i class="fa fa-camera-rotate"></i></button>
         <button id="captureButton" onclick="tomarFoto()"><i class="fa fa-camera"></i></button>
         <select id="formatSelector">
@@ -27,16 +31,17 @@
                 <div class="linea vertical-2"></div>
                 <div class="linea horizontal-1"></div>
                 <div class="linea horizontal-2"></div>
-                <div class="circulo"></div>
+               <!-- <div class="circulo"></div>-->
             </div>
         </div>
         <img src="image/logo.png" class="marca-agua" alt="Logo Marca">
+        <img id="preview" style="display:none;">
     </div>
     
 
 
-    <img id="preview" style="display:none;">
-    <canvas id="canvas" width="500" height="500" style="display:none;"></canvas>
+   
+    <canvas id="canvas" style="display:none;"></canvas>
     
   
 </body>

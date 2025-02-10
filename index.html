@@ -1,48 +1,85 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Captura de Cámara</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="/manifest.json">
-    <script src="script.js" defer></script>
+    <title>Cámara con Stickers</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        video, canvas { border: 2px solid black; max-width: 100%; }
+        .sticker { position: absolute; cursor: grab; width: 100px; }
+        #photoContainer { position: relative; display: inline-block; }
+    </style>
 </head>
 <body>
-    <!--<h1>CAMARA FANTASIA ANIMADA</h1>-->
 
-   
-    <div class="container">
-        <video id="video" autoplay playsinline ></video>
-        <img id="logo" src="" style="display: none;">
-        <button id="toggleCameraButton" onclick="toggleCamera()"><i class="fa fa-camera-rotate"></i></button>
-        <button id="captureButton" onclick="tomarFoto()"><i class="fa fa-camera"></i></button>
-        <select id="formatSelector">
-            <option value="webp">WebP</option>
-            <option value="jpg">JPG</option>
-            <option value="png">PNG</option>
-            
-        </select>
-        <button class="btn-guias" onclick="toggleGuias()">Guías</button>
-        <div class="contenedor">
-            <div class="guias">
-                <div class="linea vertical-1"></div>
-                <div class="linea vertical-2"></div>
-                <div class="linea horizontal-1"></div>
-                <div class="linea horizontal-2"></div>
-               <!-- <div class="circulo"></div>-->
-            </div>
-        </div>
-        <img src="image/logo.png" class="marca-agua" alt="Logo Marca">
-        <img id="preview" style="display:none;">
+    <h1>Cámara con Stickers</h1>
+    <input type="file" id="stickerInput" accept="image/*">
+    <div id="photoContainer">
+        <video id="video" autoplay></video>
+        <canvas id="canvas" style="display: none;"></canvas>
     </div>
-    
+    <button id="captureBtn">Tomar Foto</button>
+    <h2>Foto Guardada</h2>
+    <img id="savedPhoto" alt="Foto tomada">
 
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const stickerInput = document.getElementById('stickerInput');
+        const photoContainer = document.getElementById('photoContainer');
+        const savedPhoto = document.getElementById('savedPhoto');
 
-   
-    <canvas id="canvas" style="display:none;"></canvas>
-    
-  
+        // Acceder a la cámara
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
+            .catch(error => console.error("Error al acceder a la cámara:", error));
+
+        // Agregar sticker cargado por el usuario
+        stickerInput.addEventListener('change', event => {
+            const file = event.target.files[0];
+            if (file) {
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+                img.classList.add('sticker');
+                img.draggable = true;
+
+                // Permitir arrastrar
+                img.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', null);
+                    img.style.position = 'absolute';
+                });
+
+                img.addEventListener('drag', (e) => {
+                    if (e.clientX > 0 && e.clientY > 0) {
+                        img.style.left = `${e.clientX - 50}px`;
+                        img.style.top = `${e.clientY - 50}px`;
+                    }
+                });
+
+                photoContainer.appendChild(img);
+            }
+        });
+
+        // Capturar la foto con stickers
+        document.getElementById('captureBtn').addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Dibujar los stickers en el canvas
+            document.querySelectorAll('.sticker').forEach(sticker => {
+                const { left, top, width, height } = sticker.getBoundingClientRect();
+                const containerRect = photoContainer.getBoundingClientRect();
+                ctx.drawImage(sticker, left - containerRect.left, top - containerRect.top, width, height);
+            });
+
+            // Mostrar la foto guardada
+            savedPhoto.src = canvas.toDataURL('image/png');
+        });
+
+    </script>
+
 </body>
 </html>

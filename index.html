@@ -3,155 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cámara con Stickers</title>
+    <title>Captura y Edición de Imágenes</title>
     <style>
-        body { text-align: center; font-family: Arial, sans-serif; }
-        video, canvas { border: 2px solid black; max-width: 100%; }
-        .sticker { position: absolute; cursor: grab; width: 100px; }
-        #photoContainer { position: relative; display: inline-block; }
-        button { margin: 5px; padding: 10px; cursor: pointer; }
+        body { text-align: center; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        video { width: 100%; max-width: 500px; }
+        canvas { border: 1px solid black; margin-top: 10px; }
+        #controls { margin: 10px; display: flex; gap: 10px; }
+        #miniaturas { position: fixed; bottom: 10px; left: 10px; display: flex; flex-direction: column; }
+        .miniatura { width: auto; height: 80px; margin: 5px; cursor: pointer; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
-
-    <h1>Cámara con Stickers</h1>
-    <button id="switchCameraBtn">Cambiar Cámara</button>
-    <input type="file" id="stickerInput" accept="image/*">
-    <div id="photoContainer">
-        <video id="video" autoplay playsinline></video>
-        <canvas id="canvas" style="display: none;"></canvas>
+    <video id="video" autoplay playsinline></video>
+    <div id="controls">
+        <button id="switchCamera">Cambiar Cámara</button>
+        <button id="takePhoto">Tomar Foto</button>
+        <button id="startRecording">Grabar Video</button>
+        <button id="stopRecording" disabled>Detener Grabación</button>
+        <input type="file" id="uploadImage" accept="image/*">
     </div>
-    <button id="captureBtn">Tomar Foto</button>
-    <button id="downloadPhoto">Descargar Foto</button>
-    <button id="startRecording">Grabar Video</button>
-    <button id="stopRecording" style="display:none;">Detener Grabación</button>
-    <h2>Foto Guardada</h2>
-    <img id="savedPhoto" alt="Foto tomada">
+    <canvas id="canvas"></canvas>
+    <div id="miniaturas"></div>
 
     <script>
-        let currentStream = null;
-        let isFrontCamera = true;
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const stickerInput = document.getElementById('stickerInput');
-        const photoContainer = document.getElementById('photoContainer');
-        const savedPhoto = document.getElementById('savedPhoto');
-        const switchCameraBtn = document.getElementById('switchCameraBtn');
-        const startRecordingBtn = document.getElementById('startRecording');
-        const stopRecordingBtn = document.getElementById('stopRecording');
-        const downloadPhotoBtn = document.getElementById('downloadPhoto');
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
+        let miniaturas = document.getElementById('miniaturas');
         let mediaRecorder;
         let recordedChunks = [];
+        let usingFrontCamera = true;
+        let stream;
 
-        async function startCamera(facingMode = 'user') {
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-            }
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode }
-                });
-                video.srcObject = stream;
-                currentStream = stream;
-            } catch (error) {
-                console.error("Error al acceder a la cámara:", error);
-            }
+        async function startCamera() {
+            let constraints = { video: { facingMode: usingFrontCamera ? 'user' : 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } };
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+            video.srcObject = stream;
         }
 
-        switchCameraBtn.addEventListener('click', () => {
-            isFrontCamera = !isFrontCamera;
-            startCamera(isFrontCamera ? 'user' : 'environment');
+        document.getElementById('switchCamera').addEventListener('click', async () => {
+            usingFrontCamera = !usingFrontCamera;
+            stream.getTracks().forEach(track => track.stop());
+            await startCamera();
         });
 
-        stickerInput.addEventListener('change', event => {
-            const file = event.target.files[0];
-            if (file) {
-                const img = new Image();
-                img.src = URL.createObjectURL(file);
-                img.classList.add('sticker');
-                img.draggable = true;
-
-                img.style.position = 'absolute';
-                img.style.left = '50px';
-                img.style.top = '50px';
-                img.style.width = '100px';
-
-                img.addEventListener('mousedown', (e) => {
-                    let offsetX = e.clientX - img.offsetLeft;
-                    let offsetY = e.clientY - img.offsetTop;
-
-                    function moveSticker(event) {
-                        img.style.left = `${event.clientX - offsetX}px`;
-                        img.style.top = `${event.clientY - offsetY}px`;
-                    }
-
-                    function stopMoving() {
-                        document.removeEventListener('mousemove', moveSticker);
-                        document.removeEventListener('mouseup', stopMoving);
-                    }
-
-                    document.addEventListener('mousemove', moveSticker);
-                    document.addEventListener('mouseup', stopMoving);
-                });
-
-                photoContainer.appendChild(img);
-            }
-        });
-
-        document.getElementById('captureBtn').addEventListener('click', () => {
+        document.getElementById('takePhoto').addEventListener('click', () => {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            document.querySelectorAll('.sticker').forEach(sticker => {
-                const { left, top, width, height } = sticker.getBoundingClientRect();
-                const containerRect = photoContainer.getBoundingClientRect();
-                ctx.drawImage(sticker, left - containerRect.left, top - containerRect.top, width, height);
-            });
-
-            savedPhoto.src = canvas.toDataURL('image/png');
+            saveImage(canvas.toDataURL('image/png'));
         });
 
-        downloadPhotoBtn.addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.href = savedPhoto.src;
-            link.download = 'foto_con_stickers.png';
-            link.click();
-        });
-
-        startRecordingBtn.addEventListener('click', () => {
+        document.getElementById('startRecording').addEventListener('click', () => {
             recordedChunks = [];
-            mediaRecorder = new MediaRecorder(currentStream, { mimeType: "video/webm" });
-
-            mediaRecorder.ondataavailable = event => {
-                if (event.data.size > 0) {
-                    recordedChunks.push(event.data);
-                }
-            };
-
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(recordedChunks, { type: "video/webm" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = "video_con_stickers.webm";
-                a.click();
-            };
-
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            mediaRecorder.ondataavailable = event => recordedChunks.push(event.data);
+            mediaRecorder.onstop = saveVideo;
             mediaRecorder.start();
-            startRecordingBtn.style.display = "none";
-            stopRecordingBtn.style.display = "inline-block";
+            document.getElementById('startRecording').disabled = true;
+            document.getElementById('stopRecording').disabled = false;
         });
 
-        stopRecordingBtn.addEventListener('click', () => {
+        document.getElementById('stopRecording').addEventListener('click', () => {
             mediaRecorder.stop();
-            startRecordingBtn.style.display = "inline-block";
-            stopRecordingBtn.style.display = "none";
+            document.getElementById('startRecording').disabled = false;
+            document.getElementById('stopRecording').disabled = true;
+        });
+
+        function saveImage(dataURL) {
+            let img = document.createElement('img');
+            img.src = dataURL;
+            img.classList.add('miniatura');
+            img.onclick = () => addImageToCanvas(dataURL);
+            miniaturas.appendChild(img);
+        }
+
+        function saveVideo() {
+            let blob = new Blob(recordedChunks, { type: 'video/webm' });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'video.webm';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        document.getElementById('uploadImage').addEventListener('change', event => {
+            let file = event.target.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = e => addImageToCanvas(e.target.result);
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function addImageToCanvas(src) {
+            let img = new Image();
+            img.src = src;
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+            };
+        }
+
+        window.addEventListener('orientationchange', () => {
+            document.body.style.flexDirection = window.orientation === 0 ? 'column' : 'row';
         });
 
         startCamera();
     </script>
-
 </body>
 </html>
